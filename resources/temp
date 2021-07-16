@@ -1,0 +1,30 @@
+bl = BoxLayout(size=(300,300), orientation="vertical")
+
+self.time_24_label = Label(text='Current time:')
+bl.add_widget(self.time_24_label)
+self.time_24 = Label(text=str(time.strftime("%H:%M:%S", time.localtime())), font_size=30)
+bl.add_widget(self.time_24)
+
+
+self.seconds_advance = Label(text='Seconds in advance: ' + str(self.advance_seconds_integer))
+bl.add_widget(self.seconds_advance)
+
+bl.timer_slider = Slider(
+    min=5,
+    max=90,
+    value=5,
+    step=5
+)
+bl.add_widget(bl.timer_slider)
+
+self.button_start = Button(text='Stop playing sound',
+    on_press=self.btn_press,
+    background_color = [1,0,1,1],
+    background_normal = '',
+    size_hint =(1,0.25) );
+bl.add_widget(self.button_start)
+
+bl.timer_slider.bind(value=self.slider_on_value)
+Clock.schedule_interval(self.my_callback, 1)
+
+return bl

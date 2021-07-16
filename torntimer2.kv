@@ -1,0 +1,153 @@
+<MainScreen>:
+    time_24: time_24
+    time_arrival_24: time_arrival_24
+    label_arrival: label_arrival
+    slider_advance_arrival: slider_advance_arrival
+    switcher_arrival: switcher_arrival
+    slider_advance: slider_advance
+    time_24_15: time_24_15
+    btn_start: btn_start
+    switcher_15m: switcher_15m
+
+    BoxLayout:
+        orientation: 'vertical'
+        size: 300,300
+
+        BoxLayout:
+            orientation: 'vertical'
+            padding: 5,10,5,10
+            size_hint: (1,0.4)
+            Label:
+                text: 'Current time:'
+            Label:
+                id: time_24
+                text: 'TIME'
+                font_size: 30
+
+
+
+        BoxLayout:
+            orientation: 'vertical'
+            padding: 5,20,5,20
+            canvas:
+                Color:
+                    rgba: 0.5, 0.5, 0.5, 1
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+
+            Label:
+                text: 'Arrival Timer'
+                font_size: 30
+
+            Label:
+                id: label_arrival
+                text: 'Arrival in'
+
+            Label:
+                id: time_arrival_24
+                text: '00:00:00'
+                font_size: 30
+
+            Label:
+                text: 'Seconds in advance: '+str(slider_advance_arrival.value)
+
+            Slider:
+                id: slider_advance_arrival
+                range: (5, 90)
+                value: 5
+                step: 5
+                on_value: root.slider_arrival_on_value(self.value)
+
+            Switch:
+                id: switcher_arrival
+                active: 0
+                on_active: root.switch_arrival_on_active(self.active)
+
+
+
+        BoxLayout:
+            orientation: 'vertical'
+            padding: 5,20,5,20
+
+            Label:
+                text: 'Every 15m Timer'
+                font_size: 30
+
+            Label:
+                text: 'Shop restock in:'
+
+            Label:
+                id: time_24_15
+                text: 'hey'
+                font_size: 30
+
+            Label:
+                text: 'Seconds in advance: '+str(slider_advance.value)
+
+            Slider:
+                id: slider_advance
+                range: (5, 90)
+                value: 5
+                step: 5
+                on_value: root.slider_on_value(self.value)
+
+            Switch:
+                id: switcher_15m
+                active: True
+                on_active: root.switch_15m_on_active(self.active)
+
+        BoxLayout:
+            size_hint: (1,0.25)
+            Button:
+                id: btn_start
+                text: 'Stop playing sound'
+                on_press: root.btn_press()
+                #background_color: [1,0,1,1]
+                #background_normal: ''
+                #size_hint: (1,0.25)
+
+            Button:
+                text: 'Goto settings'
+                on_press:
+                    root.manager.transition.direction = 'right'
+                    root.manager.current = 'settingsscreen'
+
+
+<SettingsScreen>
+    apikey_input: apikey_input
+    switcher_apirequests: switcher_apirequests
+
+    BoxLayout:
+        orientation: 'vertical'
+        BoxLayout:
+            orientation: 'vertical'
+            padding: 5,20,5,20
+
+            TextInput:
+                id: apikey_input
+                multiline: False
+                hint_text: "Enter your api-key here"
+                height: self.minimum_height
+                width: self.height
+                on_text: root.textinput_on_text(self.text)
+
+            Switch:
+                id: switcher_apirequests
+                active: True
+                on_active: root.switch_apirequests_on_active(self.active)
+
+        BoxLayout:
+            orientation: 'vertical'
+            padding: 5,20,5,20
+
+        BoxLayout:
+            orientation: 'vertical'
+
+            size_hint: (1,0.25)
+
+            Button:
+                text: 'Goto settings'
+                on_press:
+                    root.manager.transition.direction = 'left'
+                    root.manager.current = 'mainscreen'
