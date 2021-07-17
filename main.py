@@ -16,6 +16,7 @@ from kivy.lang import Builder
 #from kivy.clock import Clock
 #import kivy.weakmethod
 
+
 Config.set('graphics', 'width', 320)
 Config.set('graphics', 'height', 480)
 Config.set('input', 'mouse', 'mouse,multitouch_on_demand')
@@ -104,9 +105,9 @@ class MainScreen(Screen):
         tt.daemon = True
         tt.start()
 
-        self.time_24.text = str(time.strftime("%H:%M:%S", time.localtime()))
-        self.time_24_15.text = str(time.strftime("%M:%S", time.gmtime(int((((15*60)- round(time.time()) ) % (15*60)))+1)))
-
+        self.update_clockface()
+        self.update_timer_15m()
+        self.update_timer_arrival()
 
         if (round(time.time()) < arrival_time):
             print("Мы в полете "+ str(arrival_time)+ " " + str(round(time.time())))
@@ -118,21 +119,6 @@ class MainScreen(Screen):
             arrival_time = 0
             self.label_arrival.text = "Arrived to:"
             self.time_arrival_24.text = character["destination"]
-
-        if (self.switcher_15m.active == True):
-            temporary_variable = 15
-            if ((((15*60)- round(time.time()) ) % (temporary_variable*60)) == (0+int(self.slider_advance.value))):
-                wave_obj = sa.WaveObject.from_wave_file("resources/sound.wav")
-                play_obj = wave_obj.play()
-                play_obj.wait_done()
-        if (self.switcher_arrival.active == True) and arrival_time:
-            temporary_variable = 15
-            print("КОГДА ЗВЕНЕТЬ: "+str(arrival_time - settings["advance_arrival"]))
-            if arrival_time - settings["advance_arrival"] == round(time.time()):
-                wave_obj = sa.WaveObject.from_wave_file("resources/landing.wav")
-                play_obj = wave_obj.play()
-                play_obj.wait_done()
-                print("Прилетели прилетели")
 
         # запуск запросов по API о путешествиях каждую 30-ю секунду
         if ((((round(time.time())) % 60) == 30) or (first_api_request == 1)) and settings["do_apirequests"]:
@@ -155,6 +141,30 @@ class MainScreen(Screen):
                     arrival_time = 0
                     self.label_arrival.text = "Arrived to:"
                     self.time_arrival_24.text = str(character["destination"])
+
+    def update_clockface(self):
+        self.time_24.text = str(time.strftime("%H:%M:%S", time.localtime()))
+
+    def update_timer_15m(self):
+        self.time_24_15.text = str(
+            time.strftime("%M:%S", time.gmtime(int((((15 * 60) - round(time.time())) % (15 * 60))) + 1)))
+        if (self.switcher_15m.active == True):
+            temporary_variable = 15
+            if ((((15*60)- round(time.time()) ) % (temporary_variable*60)) == (0+int(self.slider_advance.value))):
+                wave_obj = sa.WaveObject.from_wave_file("resources/sound.wav")
+                play_obj = wave_obj.play()
+                play_obj.wait_done()
+
+    def update_timer_arrival(self):
+        if (self.switcher_arrival.active == True) and arrival_time:
+            temporary_variable = 15
+            print("КОГДА ЗВЕНЕТЬ: "+str(arrival_time - settings["advance_arrival"]))
+            if arrival_time - settings["advance_arrival"] == round(time.time()):
+                wave_obj = sa.WaveObject.from_wave_file("resources/landing.wav")
+                play_obj = wave_obj.play()
+                play_obj.wait_done()
+                print("Прилетели прилетели")
+
 
     def save_config(self):
         global settings
