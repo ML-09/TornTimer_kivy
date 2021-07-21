@@ -16,6 +16,10 @@ from kivy.lang import Builder
 #from kivy.clock import Clock
 #import kivy.weakmethod
 
+""
+{'travel': {'destination': 'United Kingdom', 'method': 'Airstrip', 'timestamp': 1626758389, 'departed': 1626751909, 'time_left': 139}}
+{'travel': {'destination': 'United Kingdom', 'method': 'Airstrip', 'timestamp': 1626758389, 'departed': 1626751909, 'time_left': 0}}
+""
 
 Config.set('graphics', 'width', 320)
 Config.set('graphics', 'height', 480)
@@ -33,12 +37,15 @@ button_state = 1
 # variables for settings
 global settings
 settings = dict()
+settings["apikey_is_correct"] = 1
+settings["blaaaa"] = 1
 settings["do_ring_arrival"] = 0
 settings["advance_arrival"] = 5
 settings["do_ring_15m"] = 1
 settings["advance_15m"] = 5
 settings["do_apirequests"] = 0
-settings["apikey"] = "XJwNJPNFIysNXhKH"
+settings["apikey"] = ""
+
 
 # variables for character
 global character
@@ -109,16 +116,6 @@ class MainScreen(Screen):
         self.update_timer_15m()
         self.update_timer_arrival()
 
-        if (round(time.time()) < arrival_time):
-            print("Мы в полете "+ str(arrival_time)+ " " + str(round(time.time())))
-            self.time_arrival_24.text = str(time.strftime("%H:%M:%S", time.gmtime((arrival_time - round(time.time())))))
-        elif (round(time.time()) > arrival_time):
-            print("Давно прилетели "+ str(arrival_time)+ " " + str(round(time.time())))
-        else:
-            print("Вот прямо сейчас прилетели "+ str(arrival_time)+ " " + str(round(time.time())))
-            arrival_time = 0
-            self.label_arrival.text = "Arrived to:"
-            self.time_arrival_24.text = character["destination"]
 
         # запуск запросов по API о путешествиях каждую 30-ю секунду
         if ((((round(time.time())) % 60) == 30) or (first_api_request == 1)) and settings["do_apirequests"]:
@@ -130,7 +127,10 @@ class MainScreen(Screen):
 
             if 'error' in resp_json:
                 self.time_arrival_24.text = "Incorrect API key"
+                print("Incorrect API key")
+                settings["apikey_is_correct"] = 0
             else:
+                settings["apikey_is_correct"] = 1
                 resp_json_time_left = resp_json["travel"]["time_left"]
                 character["destination"] = str(resp_json["travel"]["destination"])
                 if (resp_json_time_left > 0 ):
@@ -156,9 +156,22 @@ class MainScreen(Screen):
                 play_obj.wait_done()
 
     def update_timer_arrival(self):
+        global arrival_time
+        global settings
+        if (round(time.time()) < arrival_time) and settings["apikey_is_correct"]:
+            print("Мы в полете "+ str(arrival_time)+ " " + str(round(time.time())))
+            self.time_arrival_24.text = str(time.strftime("%H:%M:%S", time.gmtime((arrival_time - round(time.time())))))
+        elif (round(time.time()) > arrival_time) and (settings["apikey_is_correct"]):
+            print("Давно прилетели "+ str(arrival_time)+ " " + str(round(time.time())))
+        elif settings["apikey_is_correct"]:
+            print("Вот прямо сейчас прилетели "+ str(arrival_time)+ " " + str(round(time.time())))
+            arrival_time = 0
+            self.label_arrival.text = "Arrived to:"
+            self.time_arrival_24.text = character["destination"]
+
         if (self.switcher_arrival.active == True) and arrival_time:
-            temporary_variable = 15
-            print("КОГДА ЗВЕНЕТЬ: "+str(arrival_time - settings["advance_arrival"]))
+            #temporary_variable = 15
+            #print("КОГДА ЗВЕНЕТЬ: "+str(arrival_time - settings["advance_arrival"]))
             if arrival_time - settings["advance_arrival"] == round(time.time()):
                 wave_obj = sa.WaveObject.from_wave_file("resources/landing.wav")
                 play_obj = wave_obj.play()
@@ -174,9 +187,11 @@ class MainScreen(Screen):
 
     def load_config(self):
         global settings
-        print(str(settings["advance_arrival"]))
+        setting_fromfile = dict()
+        #print(str(settings["advance_arrival"]))
         with open('config1.json', 'r') as f:
-            settings = json.load(f)
+            setting_fromfile = json.load(f)
+        settings = {**settings, **setting_fromfile}
         print("loading config")
         print(str(settings["advance_arrival"]))
 
